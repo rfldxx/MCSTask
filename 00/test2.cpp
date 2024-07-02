@@ -2,7 +2,6 @@
 #include <vector>
 #include <random>
 
-using namespace std;
 #define  TEST_MODE 
 #include "ex2.h"
 #include <bitset>
@@ -108,6 +107,31 @@ int test_class_bits() {
 }
 
 
+int test_get_in_var() {
+    int error_count = 0;
+
+    uint64_t init_arr[] = { 0x1122334455667708, 0xbabadedacafebeef };
+    bits my_bits(128, init_arr);
+
+    auto r1 = my_bits.get_in_var<char>(60, 8);
+    SHOW_LINE_IF(r1 != (char)0x8b)
+
+    auto r2 = my_bits.get_in_var<char>(60, 8, 0);
+    SHOW_LINE_IF(r2 != (char)0x8b)
+
+    auto r3 = my_bits.get_in_var<char>(60, 7);
+    SHOW_LINE_IF(r3 != (char)0x45)
+
+    auto r4 = my_bits.get_in_var<int>(60, 16);
+    SHOW_LINE_IF(r4 != (int)0x8bab)
+
+    auto r5 = my_bits.get_in_var<int>(60, 32);
+    SHOW_LINE_IF(r5 != (int)0x8babaded);
+
+    return error_count;
+}
+
+
 int test_hand_check() {
     char c = -1;
     bits b1(1, &c);      // : 1
@@ -148,6 +172,7 @@ int main() {
     int temp, ret = 0;
 
     TEST_FUNC(class_bits)
+    TEST_FUNC(get_in_var)
     TEST_FUNC(hand_check)
 
     std::cout << "--------" << std::endl;

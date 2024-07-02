@@ -139,20 +139,25 @@ public:
 // интегрального типа: отдельный вариант для битовых полей малой
 // разрядности (до 64 разрядов);
     template<typename T = long long int>
-    T get_in_var(int k, int l) const {
-        bits x = get(k, l);
-        
-        // да-а, конечно было бы меньше возни если бы set и get
-        // работали бы с void* а не с bits
-        T result;
-        for(int i = 0; i < (sizeof(T)) * BYTE_BIT / CHAR_BIT; i++) {
-            ((char*)&result)[i] = ((char*)x.data)[i];
-        }
+    T get_in_var(int k, int l, bool right_alignment = 1) const {
+        // Выравнивание по правому краю для l = 5 (right_alignment = 1): 
+        //            | ........ | ...10110 |
+        // По левому: | 10110... | .........|
 
-        // Сдвиг - чтобы информативные биты были выравнены по правому краю:
-        //  было (l == 3) :  | 10110... | .........|
-        //  функция выдаст:  | ........ | ...10110 |
-        return result >> ( (sizeof(T))*BYTE_BIT - l );
+        bits  x  = get(k, l);
+        T result = 0;
+
+        // относительно наивная реализация
+        unsigned char* src = (unsigned char*) x.data; 
+        for(int i = 0; i < x.blocks-1; i++, src++) {
+            int shift = l - (i+1)*CHAR_BIT;
+            result |= ((T)src[0]) << shift;
+        }
+        int tail = (x.noideal ? l % CHAR_BIT : CHAR_BIT);
+        result |= src[0] >> (CHAR_BIT - tail); 
+
+        if( !right_alignment && (l != sizeof(T)*BYTE_BIT) ) result <<= (sizeof(T)*BYTE_BIT - l);
+        return result;
     }
 
 
