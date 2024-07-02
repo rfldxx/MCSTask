@@ -116,7 +116,7 @@ int test_get_in_var() {
     auto r1 = my_bits.get_in_var<char>(60, 8);
     SHOW_LINE_IF(r1 != (char)0x8b)
 
-    auto r2 = my_bits.get_in_var<char>(60, 8, 0);
+    auto r2 = my_bits.get_in_var<char>(60, 8, 0);  // выравнивание по левому краю 
     SHOW_LINE_IF(r2 != (char)0x8b)
 
     auto r3 = my_bits.get_in_var<char>(60, 7);
