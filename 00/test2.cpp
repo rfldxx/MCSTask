@@ -109,14 +109,11 @@ int test_class_bits() {
 
 
 int test_hand_check() {
-    unsigned c = -1;
+    char c = -1;
     bits b1(1, &c);      // : 1
     bits b2(2, &c);      // : 11  
     
-    cout << "strart ~~~" << endl;
     bits x(10, "\0\0");  // : 0000000000
-    cout << "SOME OK!" << endl;
-    // return 0 ;
 
     x.set(2, b2);        // : 0011000000
     x.set(3, b2);        // : 0011100000
@@ -130,38 +127,28 @@ int test_hand_check() {
 
     int error_count = 0;
     
-    SHOW_LINE_IF(s1 != std::string("3AC")       )
+    SHOW_LINE_IF(s1 != std::string("3ac")       )
     SHOW_LINE_IF(s2 != std::string("03223")     )
     SHOW_LINE_IF(s3 != std::string("0011101011"))
 
-    cout << "SOME OK!" << endl;
 
-  uint64_t init_arr[] = { 0x1122334455667708, 0xbabadedacafebeef,
-                          0x4354659710928523, 0xcafebabe8794abcd };
-
-  bits my_bits(256, init_arr);
-  std::cout <<  std::bitset<8>(0x1122334455667788) << endl;
-  cout << "init: " << my_bits.str() << " (" << my_bits.size() << ")" << endl;
-  auto e = my_bits.get(0,8);
-  cout << "get:  " << e.str(1) << " (" << e.size() << ")" << endl;
-  my_bits.set(10, e);
-  std::cout << "my_bits = " << my_bits.str() << " (" << my_bits.size() << ")" << std::endl;
+    uint64_t init_arr[] = { 0x1122334455667708, 0xbabadedacafebeef, 0x4354659710928523, 0xcafebabe8794abcd };
+    
+    bits my_bits(256, init_arr);
+    SHOW_LINE_IF(my_bits.str() != string("1122334455667708babadedacafebeef4354659710928523cafebabe8794abcd"))
+    
+    auto doubt = my_bits.set(10, my_bits.get(0,8)).str();
+    SHOW_LINE_IF(  doubt       != string("1104734455667708babadedacafebeef4354659710928523cafebabe8794abcd"))
 
     return error_count; 
 }
-
-// 1000100001110111011001100101010101000100001
-// 10001000
-// 1000100001100010001001100101010101
-//           10001000
-
 
 
 int main() {
     int temp, ret = 0;
 
-    TEST_FUNC(hand_check)
     TEST_FUNC(class_bits)
+    TEST_FUNC(hand_check)
 
     std::cout << "--------" << std::endl;
     std::cout << "Total invalid test's: " << ret << std::endl << std::endl;

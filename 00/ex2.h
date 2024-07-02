@@ -76,7 +76,7 @@ public:
 
 
 //    - установить битовое поле (смещение, битвектор);
-    void set(int k, const bits& filler) {
+    bits& set(int k, const bits& filler) {
         unsigned char* dst = ((unsigned char*)data) + (k / CHAR_BIT);
         unsigned char* src =  (unsigned char*)filler.data;
 
@@ -100,6 +100,7 @@ public:
         }
 
         dst[0] = char_combine(prefix, CHAR_BIT - delta, dst[0] << delta);
+        return *this;
     }
 
 
@@ -119,9 +120,7 @@ public:
         int shift =  CHAR_BIT - delta;
         dst[0]    =  src[0]  << delta;
         
-        // cout << "need scan " << l << " bits\n";
         if( l <= shift ) {
-            // cout << "early exit\n";
             return result;
         }
 
@@ -196,7 +195,7 @@ private:
         return (a << ka) | (b >> (CHAR_BIT - ka));
     }
 
-    char bits_to_char(char bits) const { return ( bits < 10 ? '0' : 'A'-10 ) + bits; }
+    char bits_to_char(char bits) const { return ( bits < 10 ? '0' : 'a'-10 ) + bits; }
 
     template <typename T>
     void reap(const T* src, char* dst, std::size_t count, int width) const {
@@ -209,21 +208,13 @@ private:
         // сколько блоков размера width-бит вместиться в src[0]
         int multiplicity = sizeof(T) * BYTE_BIT / width;
 
-        // cout << "IT pass" << endl;
-        // cout << "mul  = " << multiplicity << endl;
-        // cout << "mask = " << bitset<sizeof(T)*8> (mask); 
-        // cout << endl;
-
         for(int i = 0; i < count; src++) {
-            // cout << "Ehh ~w~ : " << i << endl;
             for(int j = 0; i < count && j < multiplicity-1; i++, j++) {
                 int shift = (multiplicity-1 - j)*width;
-                // cout << "  j = " << j << " : shift = " << shift << endl;
-                
+
                 // дополнительно в конце делаем & mask, чтобы после сдвига влево
                 // знаковой переменной отбросить созданный "мусор" 
                 dst[i] = ((src[0] & (mask << shift)) >> shift) & mask;
-                // cout << "  ~ finish" << endl;
             }
 
             // Последнюю итрецию проводим отдельно,
@@ -232,9 +223,7 @@ private:
             // Потому что даже когда делается `mask << 0` ловится:
             //   runtime error: left shift of negative value -1
             if( i < count ) {
-                // cout << "  last iteration" << endl;
                 dst[i++] = src[0] & mask;
-                // cout << "  ~ finish" << endl;
             }
         }
     }
