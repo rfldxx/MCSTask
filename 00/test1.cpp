@@ -5,7 +5,6 @@
 #define  TEST_MODE 
 #include "ex1.h"
 
-
 using namespace std;
 
 #define SHOW_LINE_IF(cond, ...) if( cond ) {                \
@@ -19,8 +18,6 @@ if( temp = test_##f () ) {                                  \
     cout << "Total error's: " << temp << endl;              \
     ret++;                                                  \
 } else cout << "OK" << endl;
-
-
 
 
 // ==========================================================================
@@ -62,7 +59,6 @@ int test_special() {
 
     return error_count;
 }
-
 
 
 int main() {
