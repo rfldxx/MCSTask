@@ -26,7 +26,7 @@ public:
         // malloc - принимает сколько байт необходимо аллоцировать
         // однако я работаю с данными размера char (котыре не факт что один байт)
         // поэтому тут есть множитель (CHAR_BIT / BYTE_BIT) 
-        //  (уж не будем предполагать что CHAR_BIT может быть не кратен BYTE_BIT)
+        // (уж не будем предполагать что CHAR_BIT может быть не кратен BYTE_BIT)
         data  =  (need_malloc && blocks) ? malloc(blocks * (CHAR_BIT / BYTE_BIT)) : 0;
     }
 
@@ -172,7 +172,7 @@ public:
         return result;
     } 
 
-    // ставим нули в конце data ( где мусорные значения, по сути нужно только для .str() )
+// ставим нули в конце data ( где мусорные значения, по сути нужно только для .str() )
     void sweep() const {
         if( noideal ) {
             int unusing = CHAR_BIT - (N % CHAR_BIT);
