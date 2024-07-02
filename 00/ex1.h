@@ -10,6 +10,9 @@
 
 template<typename T>
 bool  is_pow_of_2(T a) {
+    T zero = 0;
+    if( a < zero ) return 0;
+
     std::size_t i = 0;
     T  power = 1; // = 2^i
     while( 1 ) {
@@ -19,6 +22,7 @@ bool  is_pow_of_2(T a) {
         if( i == (sizeof(T))*BYTE_BIT ) return 0;
         power <<= 1;
     }
+    return 0;
 }
 
 #endif  // INCLUDE_MACRO_1
