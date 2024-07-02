@@ -5,8 +5,7 @@
 2.1) Попробуйте вызвать get(10,8). У меня сломалось. \
 2.2) Сомнительный результат:   
 ```
-  uint64_t init_arr[] = { 0x1122334455667788, 0xbabadedacafebeef,
-                          0x4354659710928523, 0xcafebabe8794abcd };
+  uint64_t init_arr[] = { 0x1122334455667788, 0xbabadedacafebeef, 0x4354659710928523, 0xcafebabe8794abcd };
   bits my_bits(256, init_arr);
   my_bits.set(10, my_bits.get(0,8));
   std::cout << "my_bits = " << my_bits.str() << std::endl;
