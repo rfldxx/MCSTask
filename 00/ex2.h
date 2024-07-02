@@ -226,7 +226,11 @@ private:
                 // cout << "  ~ finish" << endl;
             }
 
-            // последнюю итрецию проводим отдельно
+            // Последнюю итрецию проводим отдельно,
+            // чтобы коректно отработать случай когда sizeof(T)*BYTE_BIT == width
+            // для знаковой переменной T
+            // Потому что даже когда делается `mask << 0` ловится:
+            //   runtime error: left shift of negative value -1
             if( i < count ) {
                 // cout << "  last iteration" << endl;
                 dst[i++] = src[0] & mask;
