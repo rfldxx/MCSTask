@@ -1,6 +1,6 @@
 // json -> ptree -> json
 // 
-// read json  to   boost::property_tree::ptree,  and
+// read json  in   boost::property_tree::ptree,  and
 // then print like-json format by pass through ptree
 // 
 // EXAMPLE:                                  | OUTPUT:
