@@ -6,78 +6,43 @@
 #include <iostream>
 
 template <typename Container>
-std::size_t max_size_in_slice(const Container& Cont) { //, std::size_t *get_size(const Container::value_type)) {
+std::size_t max_in_layer(const Container& Cont, std::size_t (*get_size)(const typename Container::value_type&)) {
     std::size_t result = 0;
-    for(auto& e : Cont) //result = std::max(result, get_size(e));
-        result = std::max(result, e.first.size());
+    for(auto& e : Cont) 
+        result = std::max(result, get_size(e));
+        // result = std::max(result, e.first.size());
     return result;
 }
 
-#define SPACE(n) std::string(n, ' ')
-void print_ptree_helper(std::ostream& out, boost::property_tree::ptree::const_iterator it, int offset = 0, int width = 0) {
-    const std::string key_delimetr = " : ";
-    const std::string end_delimetr = ";\n";
-    std::string key = it->first;
+void print(std::ostream& out, const boost::property_tree::ptree& t, int shift = 0) {
+    const std::string ender = "\n";
+    bool no_first = 0;
 
-    out << SPACE(offset) << std::setw(width) << key << key_delimetr;
+    int width = max_in_layer(t, [](const auto& p){return p.first.size();}); // + 2 символа на: "[]"
+    for(auto& [k, v] : t) {
+        if( no_first ) out << ender << std::string(shift, ' ');
+        no_first = 1;
 
-    if(it->second.empty()) {
-        out << it->second.get_value<std::string>() << end_delimetr;
-        return;
+        out << "[" << std::left << std::setw(width) << k << "]: ";
+        
+        if( !v.empty() ) print(out, v, shift+width+4);
+        else             out << v.get_value<std::string>();
     }
-    
-    bool first_iteration = 1;
-    std::size_t curr_width = max_size_in_slice(it->second); //, [](auto& p){return p.fisrt.size();}); 
-    for (auto itt = it->second.begin(); itt != it->second.end(); ++itt) {
-        print_ptree_helper(out, itt, offset, curr_width);
-
-        if(first_iteration) {
-            offset += key.size() + key_delimetr.size();
-            first_iteration = 0;
-        }
-    }
-
-    out << end_delimetr;
 }
 
-std::ostream& operator << (std::ostream& out, boost::property_tree::ptree& t) {
-
-    if(t.empty()) out << "Empty ptree\n";
-    else print_ptree_helper(out, t.begin());
+std::ostream& operator << (std::ostream& out, const boost::property_tree::ptree& t) {
+    if( t.empty() ) out << "Empty ptree";
+    else print(out, t);
     return out;
-
-// for (auto it = t.begin(); it != t.end(); ++it) {
-//     // Доступ к ключу и значению каждого элемента
-//     std::string key = it->first;
-//     // std::string value = it->second.get_value<std::string>();
-
-//     out << "[" << key << ": " ; //<< value << "]\n";
-//     if(it->second.empty()) out << it->second.get_value<std::string>();
-//     else 
-//     for(auto [k, v]: it->second) {
-//         out << k << " ~ " << v.get_value<std::string>() << "; ";
-//     }
-//     out << "]\n";
-//     // Делайте что-то с ключом и значением
-//     }
-//     return out;
 }
 
-int main()
-{
+int main() {
     boost::property_tree::ptree pt;
     boost::property_tree::read_json("t.json", pt);
 
+    std::cout << "EXAMPLE:\n";
     std::cout << pt;
-
+    std::cout << std::endl;
     
-
-    // // Пример чтения значений из JSON файла
-    // std::string name = pt.get<std::string>("name");
-    // int age = pt.get<int>("age");
-
-    // std::cout << "Name: " << name << std::endl;
-    // std::cout << "Age: " << age << std::endl;
-
     return 0;
 }
