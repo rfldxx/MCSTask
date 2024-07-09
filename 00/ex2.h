@@ -217,7 +217,7 @@ private:
             for(int j = 0; i < count && j < multiplicity-1; i++, j++) {
                 int shift = (multiplicity-1 - j)*width;
 
-                // дополнительно в конце делаем & mask, чтобы после сдвига влево
+                // дополнительно в конце делаем & mask, чтобы после сдвига вправо
                 // знаковой переменной отбросить созданный "мусор" 
                 dst[i] = ((src[0] & (mask << shift)) >> shift) & mask;
             }
