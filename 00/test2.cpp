@@ -145,13 +145,13 @@ int test_hand_check() {
 
     x.set(6, b1);        // : 0011101011
     
-    auto s1 = x.str( );  // : "3ac"
+    auto s1 = x.str( );  // : "3a3"
     auto s2 = x.str(2);  // : "03223"
     auto s3 = x.str(1);  // : "0011101011"
 
     int error_count = 0;
     
-    SHOW_LINE_IF(s1 != std::string("3ac")       )
+    SHOW_LINE_IF(s1 != std::string("3a3")       )
     SHOW_LINE_IF(s2 != std::string("03223")     )
     SHOW_LINE_IF(s3 != std::string("0011101011"))
 

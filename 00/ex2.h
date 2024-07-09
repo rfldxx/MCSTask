@@ -166,25 +166,19 @@ public:
 // ( если size не кратен 4, то data смотрится дальше, пока не станет кратным.  )
     std::string str(const int width = 4) const {
         // width  -  кол-во бит на число 0..15 = xxxx
-        sweep();  // Чтобы в конце data были нули
 
         int n = (N / width) + (N%width != 0);
         std::string result(n, '-');
 
         reap((char*)data, (char*)(result.data()), n, width);
+        
+        // если последний байт не считан полностью, то выравниваем его по правому краю
+        //      | 10.. |   =>   | ..10 |
+        if(N%width) result[n-1] >>= (width - N%width);
 
         for(int i = 0; i < n; i++) result[i] = bits_to_char(result[i]);
         return result;
     } 
-
-// ставим нули в конце data ( где мусорные значения, по сути нужно только для .str() )
-    void sweep() const {
-        if( noideal ) {
-            int unusing = CHAR_BIT - (N % CHAR_BIT);
-            unsigned char last   = ((unsigned char*)data)[blocks-1];
-            ((unsigned char*)data)[blocks-1] = (last >> unusing) << unusing;
-        }
-    }
 
 
 #ifndef TEST_MODE
