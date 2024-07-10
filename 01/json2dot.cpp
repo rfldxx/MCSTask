@@ -22,11 +22,11 @@
 //     },                                        | OUTPUT:
 //                                               | (q1):
 //     "q2": {                                   |     a/w2 -> q3
-//       "x": {"state": "end",  "output": "w2"}  |     b/w2 -> q2
+//       "y": {"state": "end",  "output": "w2"}  |     b/w2 -> q2
 //     },                                        | (q3):
 //     "q2": {                                   | {q2}:
-//       "y": {"state": "q2" ,  "output": "w1"}  |     x/w2 -> end
-//     },                                        |     y/w1 -> q2
+//       "x": {"state": "q2" ,  "output": "w1"}  |     x/w1 -> q2
+//     },                                        |     y/w2 -> end
 //                                               | (end):
 //     "end": {                                  |     i/qq -> end
 //       "i": {"state": "end",  "output": "qq"}  |
