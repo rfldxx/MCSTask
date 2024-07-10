@@ -1,5 +1,5 @@
 // json -> автомат mealy -> dot (for graphviz)
-// -------------------------------------------------------------------
+// -----------------------------------------------------------------------
 // 
 // REQUIRE FORMAT:
 // "transitions": q_i1: z_j: "state" : q_2  
@@ -12,23 +12,23 @@
 //                 .
 // 
 // "initial_state": q_0
-// -------------------------------------------------------------------
+// -----------------------------------------------------------------------
 // 
-// EXAMPLE:                                      | OUTPUT (for cout):
-// { "transitions": {                            | (q1):
-//     "q1": {                                   |     a/w2 -> q3
-//       "a": {"state": "q3" ,  "output": "w2"}, |     b/w2 -> q2
-//       "b": {"state": "q2" ,  "output": "w2"}  | (q3):
-//     },                                        | {q2}:
-//                                               |     x/w2 -> end
-//     "q2": {                                   |     y/w1 -> q2
-//       "x": {"state": "end",  "output": "w2"}  | (end):
-//     },                                        |     i/qq -> end
-//     "q2": {                                   |
-//       "y": {"state": "q2" ,  "output": "w1"}  |
-//     },                                        |
-//                                               |
-//     "end": {                                  |
+// EXAMPLE:                                      | CODE:
+// { "transitions": {                            | table mealy;
+//     "q1": {                                   | mealy.read_json(filename);
+//       "a": {"state": "q3" ,  "output": "w2"}, | cout << mealy;
+//       "b": {"state": "q2" ,  "output": "w2"}  ├────────────────────────
+//     },                                        | OUTPUT:
+//                                               | (q1):
+//     "q2": {                                   |     a/w2 -> q3
+//       "x": {"state": "end",  "output": "w2"}  |     b/w2 -> q2
+//     },                                        | (q3):
+//     "q2": {                                   | {q2}:
+//       "y": {"state": "q2" ,  "output": "w1"}  |     x/w2 -> end
+//     },                                        |     y/w1 -> q2
+//                                               | (end):
+//     "end": {                                  |     i/qq -> end
 //       "i": {"state": "end",  "output": "qq"}  |
 //     }                                         |
 //   },                                          |
@@ -139,9 +139,9 @@ int main(int argc, char* argv[]) {
 
     table mealy;
     mealy.read_json(filename);
+    // cout << mealy;
 
     print_dot_format(cout, mealy);
 
-    // cout << mealy;
     return 0;
 }
