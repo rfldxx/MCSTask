@@ -1,4 +1,18 @@
-{
-    "name":   {"aa": 1, "d": "44"} 
-    ,"age": "123"
-}
+{ "transitions": {
+    "q1": {
+      "a": {"state": "q3" ,  "output": "w2"}, 
+      "b": {"state": "q1" ,  "output": "w2"}
+    },
+
+    "q2": {
+      "x": {"state": "end",  "output": "w2"}
+    },
+    "q2": {
+      "y": {"state": "q2" ,  "output": "w1"}
+    },
+  
+    "end": {
+      "i": {"state": "end",  "output": "qq"}
+    }
+  },
+  "initial_state": "q2" }
