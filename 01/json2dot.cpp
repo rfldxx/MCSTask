@@ -2,7 +2,7 @@
 // -----------------------------------------------------------------------
 
 const char information_format[] = 
-"REQUIRE FORMAT:\n"
+"REQUIRE FORMAT:                    \n"
 "{                                  \n"
 "  \"transitions\": {               \n"
 "      \"q_i1\": {                  \n"
@@ -163,7 +163,7 @@ try {
     }
     
 } catch(exception& e) { cerr << "error: " << e.what() <<  "\n"; return 1; } 
-  catch(...)          { cerr << "Exception of unknown type!\n"; }
+  catch(...)          { cerr << "Exception of unknown type!\n"; return 1; }
 
 
     table mealy;
