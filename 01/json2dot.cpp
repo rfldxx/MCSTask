@@ -68,8 +68,6 @@ public:
         boost::property_tree::ptree pt;
         boost::property_tree::read_json(filename, pt);
 
-        int count_state = 0, count_input = 0;
-
         // вопрос: умеется ли оптимизироваться такое итерирование
         //         for(auto& x : pt.get_child("transitions"))  ??
         const auto transitions = pt.get_child("transitions");
