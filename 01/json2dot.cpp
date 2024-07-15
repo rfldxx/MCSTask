@@ -1,43 +1,51 @@
 // json -> автомат mealy -> dot (for graphviz)
 // -----------------------------------------------------------------------
-// 
-// REQUIRE FORMAT:
-// "transitions": q_i1: z_j: "state" : q_2  
-//                 |         "output": w_j
-//                 |    ...
-//                 └    z_n: ...
-//                q_i2: ...
-//                 └    ...
-//                 .
-//                 .
-// 
-// "initial_state": q_0
-// -----------------------------------------------------------------------
-// 
-// EXAMPLE:                                      | CODE:
-// { "transitions": {                            | table mealy;
-//     "q1": {                                   | mealy.read_json(filename);
-//       "a": {"state": "q3" ,  "output": "w2"}, | cout << mealy;
-//       "b": {"state": "q2" ,  "output": "w2"}  ├────────────────────────
-//     },                                        | OUTPUT:
-//                                               | (q1):
-//     "q2": {                                   |     a/w2 -> q3
-//       "y": {"state": "end",  "output": "w2"}  |     b/w2 -> q2
-//     },                                        | (q3):
-//     "q2": {                                   | {q2}:
-//       "x": {"state": "q2" ,  "output": "w1"}  |     x/w1 -> q2
-//     },                                        |     y/w2 -> end
-//                                               | (end):
-//     "end": {                                  |     i/qq -> end
-//       "i": {"state": "end",  "output": "qq"}  |
-//     }                                         |
-//   },                                          |
-//   "initial_state": "q2" }                     |
+
+const char information_format[] = 
+"REQUIRE FORMAT:\n"
+"{                                  \n"
+"  \"transitions\": {               \n"
+"      \"q_i1\": {                  \n"
+"         \"z_j\": { \"state\": \"q_2\",  \"output\": \"w_j\" }, \n"
+"          ...                      \n"
+"         \"z_n\": { ... }          \n"
+"      },                           \n"
+"      \"q_i2\": { ... }            \n"
+"       .                           \n"
+"       .                           \n"
+"  },                               \n"
+"                                   \n"
+"  \"initial_state\": \"q_0\"       \n"
+"}                                  \n";
+
+const char information_example[] = 
+"EXAMPLE:                                     "        " | CODE:\n"
+"{ \"transitions\": {                           "      " | table mealy;\n"
+"    \"q1\": {                                  "      " | mealy.read_json(filename);\n"
+"      \"a\": {\"state\": \"q3\" ,  \"output\": \"w2\"}, | print_dot_format(cout, mealy);\n"
+"      \"b\": {\"state\": \"q2\" ,  \"output\": \"w2\"}  ├────────────────────────\n"
+"    },                                       "        " | OUTPUT:\n"
+"                                             "        " | digraph G {\n"
+"    \"q2\": {                                  "      " |   q2 [color=\"blue\"]\n"
+"      \"y\": {\"state\": \"end\",  \"output\": \"w2\"}  | \n"
+"    },                                       "        " |   q1 -> q3 [label=\"a/w2\"]\n"
+"    \"q2\": {                                  "      " |   q1 -> q2 [label=\"b/w2\"]\n"
+"      \"x\": {\"state\": \"q2\" ,  \"output\": \"w1\"}  |   q2 -> q2 [label=\"x/w1\"]\n"
+"    },                                       "        " |   q2 -> end [label=\"y/w2\"]\n"
+"                                             "        " |   end -> end [label=\"i/qq\"]\n"
+"    \"end\": {                                 "      " | }\n"
+"      \"i\": {\"state\": \"end\",  \"output\": \"qq\"}  |\n"
+"    }                                        "        " |\n"
+"  },                                         "        " |\n"
+"  \"initial_state\": \"q2\" }                    "    " |\n";
 
 
 
 #include <boost/property_tree/ptree.hpp>
 #include <boost/property_tree/json_parser.hpp>
+
+#include <boost/program_options.hpp>
+namespace po = boost::program_options;
 
 #include <iostream>
 #include <vector>
@@ -47,16 +55,6 @@ using namespace std;
 
 class table {
 public:
-    // template <typename Map, typename Vect>
-    // int upg(Map& promo, Vect& v, string name) {  // updated pos get
-    //     if( !promo.count(name) ) {
-    //         pos2state[v.size()] = name;
-    //         promo[name] = v.size();
-    //         v.push_back({});
-    //     }
-    //     return promo[name];
-    // }
-
     int upg(const string& name) {
        if( !state2pos.count(name) ) {
             state2pos[name] = state.size();
@@ -94,7 +92,7 @@ public:
         initial_pos = state2pos.at(pt.get<string>("initial_state"));
         return 1;
     }
-    
+
 
     int initial_pos;
 
@@ -105,17 +103,6 @@ public:
     vector<map<string, transition>> state; 
 };
 
-std::ostream& operator << (std::ostream& out, const table& t) {
-    for(int i = 0; i < t.state.size(); i++) {
-        bool init = (i == t.initial_pos);
-        out << "({"[init] << t.pos2state.at(i) << ")}"[init] << ":";
-        out << "\n";
-        for(const auto& [z, tr] : t.state[i]) {
-            out << "    " << z << "/" << tr.output << " -> " << t.pos2state.at(tr.pos) << "\n";
-        }
-    }
-    return out;
-}
 
 void print_dot_format(std::ostream& out, const table& t) {
     out << "digraph G {\n";
@@ -134,14 +121,56 @@ void print_dot_format(std::ostream& out, const table& t) {
     out << "}\n";
 }
 
-int main(int argc, char* argv[]) {
-    std::string filename = (const char* []){"mealy.json", argv[1]}[argc != 1];
+string change_extension(const string& filename) {
+    int l = filename.find_last_of('.');
+    if( filename.substr(l, string::npos) == ".dot") return {};
+    return filename.substr(0, l) + ".dot";
+}
+
+int main(int ac, char* av[]) {
+    string ifile, ofile;
+try {
+    po::options_description desc("Allowed options");
+    desc.add_options()
+        ("help"    , "produce help message")
+        ("input,i" , po::value<string>(&ifile), "file with Mealy machine configuration")
+        ("output,o", po::value<string>(&ofile), "file to save DOT format representation");
+
+    po::variables_map vm;        
+    po::store(po::parse_command_line(ac, av, desc), vm);
+    po::notify(vm);    
+
+    if ( vm.count("help")) { 
+        cout << desc << "\nNeed information about:\n  * REQUIRE FORMAT [R]\n  * EXAMPLE [E]\n";
+        char answer = '-';
+        scanf("%c", &answer);
+        if(answer == 'R') cout << information_format  << "\n";
+        if(answer == 'E') cout << information_example << "\n";
+        return 0; 
+    }
+
+    if (!vm.count("input")) {
+        cout << "Required input file (--input).\n";
+        return 2;
+    }
+
+    if (!vm.count("output")) {
+        if( (ofile = change_extension(ifile)) == "" ) {
+            cout << "Input file have extension .dot, but output file undefined.\n";
+            return 3;
+        }
+        cout << "Using to output file: " << ofile << "\n";
+    }
+    
+} catch(exception& e) { cerr << "error: " << e.what() <<  "\n"; return 1; } 
+  catch(...)          { cerr << "Exception of unknown type!\n"; }
+
 
     table mealy;
-    mealy.read_json(filename);
-    // cout << mealy;
+    mealy.read_json(ifile); 
 
-    print_dot_format(cout, mealy);
+    std::ofstream out(ofile);
+    print_dot_format(out, mealy);
 
     return 0;
 }
