@@ -82,7 +82,7 @@ public:
                 int  q2_indx = upg(q2);
                 
                 // добавляем связь q -> q2 (in: z / out: w)
-                assert( state[q_indx].count(z) == 0);
+                assert( state[q_indx].count(z) == 0 );
                 state[q_indx][z] = {q2_indx, w};
             }
         }
@@ -121,7 +121,7 @@ void print_dot_format(std::ostream& out, const table& t) {
 
 string change_extension(const string& filename) {
     int l = filename.find_last_of('.');
-    if( filename.substr(l, string::npos) == ".dot") return {};
+    if( filename.substr(l, string::npos) == ".dot" ) return {};
     return filename.substr(0, l) + ".dot";
 }
 
