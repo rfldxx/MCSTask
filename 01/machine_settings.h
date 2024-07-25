@@ -35,8 +35,8 @@ struct machine_settings {
         desc.add_options()
             ("help"    , "produce help message")
             ("seed"    , "-")
-            // ("input,i" , po::value<string>(&ifile), "file with Mealy machine configuration") ! сделать его отдельным, обязательным в json2dot
             ("output,o", po::value<std::string>(&outfile), "file to save DOT format representation")
+            // ("input,i" , po::value<string>(&ifile), "file with Mealy machine configuration") ! сделать его отдельным, обязательным в json2dot
             READ_RANGE(n_states,    "allowed number of states in machine")
             READ_RANGE(n_trans_out, "allowed number of transitions from the node")
             READ_RANGE(n_alph_in,   "allowed count  of characters in  input alphabet")
@@ -58,7 +58,7 @@ struct machine_settings {
             return; 
         }
 
-        //throw std::runtime_error("An error occurred in constructor!");
+        // throw std::runtime_error("An error occurred in constructor!");
         
         is_actual = 1;
     }
