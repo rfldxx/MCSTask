@@ -1,0 +1,9 @@
+digraph G {
+  q2 [color="blue"]
+
+  q1 -> q3 [label="a/w2"]
+  q1 -> q2 [label="b/w2"]
+  q2 -> q2 [label="x/w1"]
+  q2 -> end [label="y/w2"]
+  end -> end [label="i/qq"]
+}
