@@ -34,7 +34,9 @@ try {
 
 
     if( infile == mealy_settings.outfile ) 
-        throw std::runtime_error("same file for configuration and save");
+        throw std::runtime_error("same file for configuration and save: " + infile);
+
+    // if( !infile.size() )
 
 
     mealy.read_json(infile);

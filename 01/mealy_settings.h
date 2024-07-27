@@ -12,7 +12,9 @@ namespace po = boost::program_options;
 
 std::string change_extension(const std::string& filename) {
     int l = filename.find_last_of('.');
-    if( l != std::string::npos && filename.substr(l, std::string::npos) == ".dot" ) return {};
+// починить ./json2dot --in=s
+// > error: basic_string::substr: __pos (which is 18446744073709551615) > this->size() (which is 1)
+    if( filename.substr(l, filename.size() - l) == ".dot" ) return {};
     return filename.substr(0, l) + ".dot";
 }
 
@@ -25,28 +27,6 @@ struct machine_settings {
     limits n_trans_out;
     limits n_alph_in, n_alph_out;
     bool is_actual = 0;
-
-    po::options_description get_flags() {
-        po::options_description desc("Allowed options");
-
-        #define   STR(a) #a
-        #define tREAD_RANGE(name, side, desc) ( STR(name##_##side), po::value<unsigned>(&name.side), desc)
-        #define  READ_RANGE(name, desc) tREAD_RANGE(name, min, "minimum " desc) tREAD_RANGE(name, max, "maximum " desc)
-        desc.add_options()
-            ("help"    , "produce help message")
-            ("seed"    , "-")
-            ("output,o", po::value<std::string>(&outfile), "file to save DOT format representation")
-            // ("input,i" , po::value<string>(&ifile), "file with Mealy machine configuration") ! сделать его отдельным, обязательным в json2dot
-            READ_RANGE(n_states,    "allowed number of states in machine")
-            READ_RANGE(n_trans_out, "allowed number of transitions from the node")
-            READ_RANGE(n_alph_in,   "allowed count  of characters in  input alphabet")
-            READ_RANGE(n_alph_out,  "allowed count  of characters in output alphabet");
-        #undef   STR
-        #undef tREAD_RANGE
-        #undef  READ_RANGE
-
-        return desc;
-    }
 
 
     // // machine_settings (int argc, char* argv[]) {
@@ -88,7 +68,6 @@ struct machine_settings {
         is_actual = 1;
         return 1;
     }
-
 
 
 
