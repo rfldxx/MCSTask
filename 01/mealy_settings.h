@@ -12,9 +12,10 @@ namespace po = boost::program_options;
 
 std::string change_extension(const std::string& filename) {
     int l = filename.find_last_of('.');
-    if( filename.substr(l, std::string::npos) == ".dot" ) return {};
+    if( l != std::string::npos && filename.substr(l, std::string::npos) == ".dot" ) return {};
     return filename.substr(0, l) + ".dot";
 }
+
 
 struct machine_settings {
     struct limits { unsigned min = 0, max = -1; };
@@ -25,8 +26,7 @@ struct machine_settings {
     limits n_alph_in, n_alph_out;
     bool is_actual = 0;
 
-    // machine_settings (int argc, char* argv[]) {
-    void read(int argc, char* argv[]) {  //, string out_flag_desc = "file to save result of program") {
+    po::options_description get_flags() {
         po::options_description desc("Allowed options");
 
         #define   STR(a) #a
@@ -45,9 +45,34 @@ struct machine_settings {
         #undef tREAD_RANGE
         #undef  READ_RANGE
 
+        return desc;
+    }
+
+
+    // // machine_settings (int argc, char* argv[]) {
+    bool read_command_line(int argc, char* argv[], const po::options_description& additional_flags = {}) {
+        po::options_description desc("Allowed options");
+        desc.add(additional_flags);
+
+        #define   STR(a) #a
+        #define tREAD_RANGE(name, side, desc) ( STR(name##_##side), po::value<unsigned>(&name.side), desc)
+        #define  READ_RANGE(name, desc) tREAD_RANGE(name, min, "minimum " desc) tREAD_RANGE(name, max, "maximum " desc)
+        desc.add_options()
+            ("help"    , "produce help message")
+            ("seed"    , "-")
+            ("out", po::value<std::string>(&outfile), "file to save DOT format representation")
+            READ_RANGE(n_states,    "allowed number of states in machine")
+            READ_RANGE(n_trans_out, "allowed number of transitions from the node")
+            READ_RANGE(n_alph_in,   "allowed count  of characters in  input alphabet")
+            READ_RANGE(n_alph_out,  "allowed count  of characters in output alphabet");
+        #undef   STR
+        #undef tREAD_RANGE
+        #undef  READ_RANGE
+
+
         po::variables_map vm;        
         po::store(po::parse_command_line(argc, argv, desc), vm);
-        po::notify(vm);    
+        po::notify(vm);
 
         if ( vm.count("help") ) { 
             std::cout << desc << "\nNeed information about:\n  * REQUIRE FORMAT [R]\n  * EXAMPLE [E]\n";
@@ -55,13 +80,16 @@ struct machine_settings {
             scanf("%c", &answer);
             if(answer == 'R') std::cout << information_format  << "\n";
             if(answer == 'E') std::cout << information_example << "\n";
-            return; 
+            return 0; 
         }
 
         // throw std::runtime_error("An error occurred in constructor!");
         
         is_actual = 1;
+        return 1;
     }
+
+
 
 
     /* static */ const char information_format[700] = 
