@@ -3,7 +3,7 @@
 
 // В ЭТОМ ФАЙЛЕ СДЕЛАТЬ:
 // [✓] + считывание обязательного аргумента input_file
-// [ ] + проверка автомата (class table)
+// [✓] + проверка автомата (class table)
 // [✓] - пренести class table и print_dot_format в отдельный файл
 
 #include "mealy_settings.h"
@@ -46,34 +46,17 @@ try {
 } catch(exception& e) { cerr << "error: " << e.what() <<  "\n"; return 1; } 
   catch(...)          { cerr << "Exception of unknown type!\n"; return 1; }
 
-    // проверками корректности описания автомата
-    // limits n_states;
-    // limits n_trans_out;
-    // limits n_alph_in, n_alph_out;
-    // -----------------------------------------------------
-    // std::map<std::string, int> state2indx;
-    // std::map<int, std::string> indx2state;
-    // struct transition { int pos; std::string output; }; 
-    // std::vector<std::map<std::string, transition>> state;
-
-
-    // #define CHECK(range_name, var)
-    // if( !settings.is_correct_##range_name(var) ) {
-    //     cout << ("Uncorrect " #range_name ": ") << var << endl; 
-    // }
-    // CHECK(states, mealy.state.size())
     
+
+
+// проверками корректности описания автомата
     if( !settings.is_correct_states(mealy.state.size()) ) {
         cout << "Uncorrect quantity of states: " << mealy.state.size() << endl;
     }
 
-
     bool show_all_err = 1;
-    // .first = is_correct   .second = is_actual
-    // pair<bool, bool>  alph_in {1, 1};
-    bool trans_out = 1;
-    bool  alph_out = 1;
-    bool  alph_in  = 1;
+    bool trans_out = 1, alph_out = 1, alph_in  = 1;
+    // unsigned count_of_err_to_show = -1;
     for(int i = 0; i < mealy.state.size(); i++) {
         string introduce_state = "For state: \"" + mealy.indx2state.at(i) + "\" uncorrect ";
 
@@ -84,7 +67,7 @@ try {
 
         for(const auto& [in, bond] : mealy.state[i]) {
             if( alph_in && !settings.is_correct_alph_in(in)) {
-                cout << introduce_state << "alph_in: \""  << in << "\"" << endl;
+                cout << introduce_state << "alph_in:  \""  << in << "\"" << endl;
                 alph_in = show_all_err;
             }
             if( alph_out && !settings.is_correct_alph_out(bond.output)) {
@@ -95,7 +78,7 @@ try {
     }
 
 
-
+// сохраняем dot-представление автомата
     mealy.print_dot_format(settings.outfile);
 
     return 0;
