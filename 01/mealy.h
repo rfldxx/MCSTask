@@ -6,8 +6,10 @@
 #include <boost/property_tree/json_parser.hpp>
 
 
+
 class table {
 public:
+    // у состояний игнорируем первую букву и сохраняем только число
     bool read_json(std::string filename) {
         boost::property_tree::ptree pt;
         boost::property_tree::read_json(filename, pt);
@@ -20,14 +22,21 @@ public:
 
             for(const auto& [z, vv] : v) {
                 // int input_indx = upg(input2pos, state[q_indx], z);
-
+                
+                // проверка "алфавитов"
+                if( z[0] != 'z' ) // continue;
+                    throw std::runtime_error("uncorrect  input prefix: " + z + " for state " + q);
                 auto w  = vv.get<std::string>("output");
+                if( w[0] != 'w' ) 
+                    throw std::runtime_error("uncorrect output prefix: " + w + " for transition "  + q + "[" + z + "]");
+
+
                 auto q2 = vv.get<std::string>( "state");
                 int  q2_indx = upg(q2);
                 
                 // добавляем связь q -> q2 (in: z / out: w)
-                assert( state[q_indx].count(z) == 0 );
-                state[q_indx][z] = {q2_indx, w};
+                assert( state[q_indx].count(stoi( z.substr(1) )) == 0 );
+                state[q_indx][stoi( z.substr(1) )] = {q2_indx, stoi( w.substr(1) )};
             }
         }
 
@@ -50,7 +59,7 @@ public:
             const std::string& q = indx2state.at(i);
             for(const auto [z, tr] : state[i]) {
                 out << "  " << q << " -> " << indx2state.at(tr.pos)
-                    << " [label=\"" << z << '/' << tr.output << "\"]\n";
+                    << " [label=\"z" << z << "/w" << tr.output << "\"]\n";
             }
         }
         out << "}\n";
@@ -63,8 +72,8 @@ public:
     std::map<std::string, int> state2indx;
     std::map<int, std::string> indx2state; // здесь по идеи можно использовать vector вместо map
                                            // ( или вообще хранить в векторе state )
-    struct transition { int pos; std::string output; }; 
-    std::vector<std::map<std::string, transition>> state; 
+    struct transition { int pos; int output; }; 
+    std::vector<std::map<int, transition>> state; 
 
 private:
     int upg(const std::string& name) {

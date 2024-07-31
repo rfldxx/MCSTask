@@ -83,14 +83,14 @@ try {
         }
 
         for(const auto& [in, bond] : mealy.state[i]) {
-            // if( alph_in && !settings.is_correct_alph_in(in)) ) {
-            //     cout << introduce_state << "alph_in: \""  << in << "\"" << endl;
-            //     alph_in = show_all_err;
-            // }
-            // if( alph_out && !settings.is_correct_alph_out(bond.output)) ) {
-            //     cout << introduce_state << "alph_out: \"" << bond.output << "\"" << endl;
-            //     alph_out = show_all_err;
-            // }
+            if( alph_in && !settings.is_correct_alph_in(in)) {
+                cout << introduce_state << "alph_in: \""  << in << "\"" << endl;
+                alph_in = show_all_err;
+            }
+            if( alph_out && !settings.is_correct_alph_out(bond.output)) {
+                cout << introduce_state << "alph_out: \"" << bond.output << "\"" << endl;
+                alph_out = show_all_err;
+            }
         }
     }
 

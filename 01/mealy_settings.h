@@ -32,7 +32,6 @@ public:  bool is_correct_##name(unsigned a) { return (n_##name.min <= a) && (a <
     GEn(trans_out)
     GEn(alph_in)
     GEn(alph_out)
-
 #undef GEn
 
 

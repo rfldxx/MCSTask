@@ -1,33 +1,33 @@
 {
     "transitions": {
         "q1": {
-            "a": {
+            "z1": {
                 "state": "q3",
                 "output": "w2"
             },
-            "b": {
+            "z2": {
                 "state": "q2",
                 "output": "w2"
             }
         },
 
         "q2": {
-            "y": {
+            "z3": {
                 "state": "end",
                 "output": "w2"
             }
         },
         "q2": {
-            "x": {
+            "z4": {
                 "state": "q2",
                 "output": "w1"
             }
         },
 
         "end": {
-            "i": {
+            "z5": {
                 "state": "end",
-                "output": "qq"
+                "output": "w0"
             }
         }
     },
