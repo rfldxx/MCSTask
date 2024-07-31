@@ -24,7 +24,7 @@ struct machine_settings {
     bool is_actual = 0;
 
 #define GEn(name)               \
-private: limits n_##name;       \
+/*private:*/ limits n_##name;       \
 public:  bool is_correct_##name(unsigned a) { return (n_##name.min <= a) && (a <= n_##name.max); }
     GEn(states)
     GEn(trans_out)
