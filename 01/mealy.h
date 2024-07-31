@@ -38,6 +38,8 @@ public:
 
     void print_dot_format(std::string filename) const {
         std::ofstream out(filename);
+        if( !out ) throw std::runtime_error("can't open file to out: \"" + filename + "\"");
+
         out << "digraph G {\n";
 
         // выделяем начальную вершину
@@ -55,15 +57,16 @@ public:
     }
 
 
-private:
     int initial_pos;
 
     // map<string, int> input2pos;
     std::map<std::string, int> state2indx;
-    std::map<int, std::string> indx2state;
+    std::map<int, std::string> indx2state; // здесь по идеи можно использовать vector вместо map
+                                           // ( или вообще хранить в векторе state )
     struct transition { int pos; std::string output; }; 
     std::vector<std::map<std::string, transition>> state; 
 
+private:
     int upg(const std::string& name) {
        if( !state2indx.count(name) ) {
             state2indx[name] = state.size();

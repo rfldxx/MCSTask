@@ -14,7 +14,7 @@ std::string change_extension(const std::string& filename) {
     int l = filename.find_last_of('.');
 // починить ./json2dot --in=s
 // > error: basic_string::substr: __pos (which is 18446744073709551615) > this->size() (which is 1)
-    if( filename.substr(l, filename.size() - l) == ".dot" ) return {};
+    if( l != std::string::npos && filename.substr(l, filename.size() - l) == ".dot" ) return {};
     return filename.substr(0, l) + ".dot";
 }
 
@@ -23,10 +23,17 @@ struct machine_settings {
     struct limits { unsigned min = 0, max = -1; };
     
     std::string outfile;
-    limits n_states;
-    limits n_trans_out;
-    limits n_alph_in, n_alph_out;
     bool is_actual = 0;
+
+#define GEn(name)               \
+private: limits n_##name;       \
+public:  bool is_correct_##name(unsigned a) { return (n_##name.min <= a) && (a <= n_##name.max); }
+    GEn(states)
+    GEn(trans_out)
+    GEn(alph_in)
+    GEn(alph_out)
+
+#undef GEn
 
 
     // // machine_settings (int argc, char* argv[]) {

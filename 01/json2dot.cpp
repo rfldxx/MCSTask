@@ -17,34 +17,86 @@ using namespace std;
 
 int main(int argc, char* argv[]) {
     string infile;
-    machine_settings mealy_settings;
+    machine_settings settings;
     table mealy;
 
 try {
+    // создаем обязательный флаг для выходного файла
     po::options_description read_input("Required input file with configuration");
     read_input.add_options()("in", po::value<string>(&infile)->required(), "file with Mealy machine configuration");
 
-    mealy_settings.read_command_line(argc, argv, read_input);
-    if( !mealy_settings.is_actual ) return 0;
+    // парсим комадную строку, с учетом дополнительного po::options_description
+    settings.read_command_line(argc, argv, read_input);
+    if( !settings.is_actual ) return 0;
 
-    if ( mealy_settings.outfile == "" ) {
-        mealy_settings.outfile = change_extension(infile);
-        cout << "Using to output file: \"" << mealy_settings.outfile << "\"\n";
+    // проверка, что имя входного файла не пусто
+    if( infile == "" ) 
+        throw std::runtime_error("empty name of input file");
+
+    // если выходной файл не задан, то:  <выходной файл> := <входной файл(без расширения)>.dot
+    if ( settings.outfile == "" ) {
+        settings.outfile = change_extension(infile);
+        cout << "Using to output file: \"" << settings.outfile << "\"\n";
     }
 
-
-    if( infile == mealy_settings.outfile ) 
-        throw std::runtime_error("same file for configuration and save: " + infile);
-
-    // if( !infile.size() )
-
+    if( infile == settings.outfile ) 
+        throw std::runtime_error("same file for configuration and save: \"" + infile + "\"");
 
     mealy.read_json(infile);
 } catch(exception& e) { cerr << "error: " << e.what() <<  "\n"; return 1; } 
   catch(...)          { cerr << "Exception of unknown type!\n"; return 1; }
 
+    // проверками корректности описания автомата
+    // limits n_states;
+    // limits n_trans_out;
+    // limits n_alph_in, n_alph_out;
+    // -----------------------------------------------------
+    // std::map<std::string, int> state2indx;
+    // std::map<int, std::string> indx2state;
+    // struct transition { int pos; std::string output; }; 
+    // std::vector<std::map<std::string, transition>> state;
 
-    mealy.print_dot_format(mealy_settings.outfile);
+
+    // #define CHECK(range_name, var)
+    // if( !settings.is_correct_##range_name(var) ) {
+    //     cout << ("Uncorrect " #range_name ": ") << var << endl; 
+    // }
+    // CHECK(states, mealy.state.size())
+    
+    if( !settings.is_correct_states(mealy.state.size()) ) {
+        cout << "Uncorrect quantity of states: " << mealy.state.size() << endl;
+    }
+
+
+    bool show_all_err = 1;
+    // .first = is_correct   .second = is_actual
+    // pair<bool, bool>  alph_in {1, 1};
+    bool trans_out = 1;
+    bool  alph_out = 1;
+    bool  alph_in  = 1;
+    for(int i = 0; i < mealy.state.size(); i++) {
+        string introduce_state = "For state: \"" + mealy.indx2state.at(i) + "\" uncorrect ";
+
+        if( trans_out && !settings.is_correct_trans_out(mealy.state[i].size()) ) {
+            cout << introduce_state << "trans_out: " << mealy.state[i].size() << endl;
+            trans_out = show_all_err;
+        }
+
+        for(const auto& [in, bond] : mealy.state[i]) {
+            // if( alph_in && !settings.is_correct_alph_in(in)) ) {
+            //     cout << introduce_state << "alph_in: \""  << in << "\"" << endl;
+            //     alph_in = show_all_err;
+            // }
+            // if( alph_out && !settings.is_correct_alph_out(bond.output)) ) {
+            //     cout << introduce_state << "alph_out: \"" << bond.output << "\"" << endl;
+            //     alph_out = show_all_err;
+            // }
+        }
+    }
+
+
+
+    mealy.print_dot_format(settings.outfile);
 
     return 0;
 }
