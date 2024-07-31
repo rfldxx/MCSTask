@@ -1,28 +1,21 @@
 #ifndef INCLUDEMACRO_MACHINE
 #define INCLUDEMACRO_MACHINE
 
-
 #include <boost/property_tree/ptree.hpp>
 #include <boost/property_tree/json_parser.hpp>
 
 
-
 class table {
 public:
-    // у состояний игнорируем первую букву и сохраняем только число
+    // у переходов игнорируем первую букву и сохраняем только число
     bool read_json(std::string filename) {
         boost::property_tree::ptree pt;
         boost::property_tree::read_json(filename, pt);
 
-        // вопрос: умеется ли оптимизироваться такое итерирование
-        //         for(auto& x : pt.get_child("transitions"))  ??
-        const auto transitions = pt.get_child("transitions");
-        for(const auto& [q, v] : transitions) {
+        for(const auto& [q, v] : pt.get_child("transitions")) {
             int q_indx = upg(q);
 
-            for(const auto& [z, vv] : v) {
-                // int input_indx = upg(input2pos, state[q_indx], z);
-                
+            for(const auto& [z, vv] : v) {                
                 // проверка "алфавитов"
                 if( z[0] != 'z' ) // continue;
                     throw std::runtime_error("uncorrect  input prefix: " + z + " for state " + q);
@@ -68,10 +61,9 @@ public:
 
     int initial_pos;
 
-    // map<string, int> input2pos;
     std::map<std::string, int> state2indx;
     std::map<int, std::string> indx2state; // здесь по идеи можно использовать vector вместо map
-                                           // ( или вообще хранить в векторе state )
+                                           // ( или вообще хранить это в векторе state )
     struct transition { int pos; int output; }; 
     std::vector<std::map<int, transition>> state; 
 

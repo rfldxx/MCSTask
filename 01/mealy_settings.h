@@ -12,8 +12,6 @@ namespace po = boost::program_options;
 
 std::string change_extension(const std::string& filename) {
     int l = filename.find_last_of('.');
-// починить ./json2dot --in=s
-// > error: basic_string::substr: __pos (which is 18446744073709551615) > this->size() (which is 1)
     if( l != std::string::npos && filename.substr(l, filename.size() - l) == ".dot" ) return {};
     return filename.substr(0, l) + ".dot";
 }
@@ -35,7 +33,7 @@ public:  bool is_correct_##name(unsigned a) { return (n_##name.min <= a) && (a <
 #undef GEn
 
 
-    // // machine_settings (int argc, char* argv[]) {
+    // // machine_settings(int argc, char* argv[]) {
     bool read_command_line(int argc, char* argv[], const po::options_description& additional_flags = {}) {
         po::options_description desc("Allowed options");
         desc.add(additional_flags);
@@ -74,7 +72,6 @@ public:  bool is_correct_##name(unsigned a) { return (n_##name.min <= a) && (a <
         is_actual = 1;
         return 1;
     }
-
 
 
     /* static */ const char information_format[700] = 

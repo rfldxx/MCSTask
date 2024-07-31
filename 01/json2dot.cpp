@@ -1,11 +1,6 @@
 // json -> автомат mealy (+проверка флагов из терминала) -> dot (for graphviz)
 // ----------------------------------------------------------------------------
 
-// В ЭТОМ ФАЙЛЕ СДЕЛАТЬ:
-// [✓] + считывание обязательного аргумента input_file
-// [✓] + проверка автомата (class table)
-// [✓] - пренести class table и print_dot_format в отдельный файл
-
 #include "mealy_settings.h"
 #include "mealy.h"
 
@@ -47,7 +42,6 @@ try {
   catch(...)          { cerr << "Exception of unknown type!\n"; return 1; }
 
     
-
 
 // проверками корректности описания автомата
     if( !settings.is_correct_states(mealy.state.size()) ) {
