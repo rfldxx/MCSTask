@@ -1,0 +1,19 @@
+digraph G {
+  q0 [color="blue"]
+
+  q0 -> q1 [label="z0/w0"]
+  q0 -> q2 [label="z4/w0"]
+  q0 -> q4 [label="z5/w0"]
+  q1 -> q2 [label="z1/w0"]
+  q1 -> q0 [label="z6/w0"]
+  q1 -> q4 [label="z7/w0"]
+  q2 -> q3 [label="z2/w0"]
+  q2 -> q1 [label="z8/w0"]
+  q2 -> q4 [label="z9/w0"]
+  q3 -> q4 [label="z3/w0"]
+  q3 -> q0 [label="z10/w0"]
+  q3 -> q2 [label="z11/w0"]
+  q4 -> q0 [label="z12/w0"]
+  q4 -> q2 [label="z13/w0"]
+  q4 -> q3 [label="z14/w0"]
+}

@@ -8,6 +8,8 @@
 //  q1 -> q2 (in: z1 / out: w1)
 //  q1 -> q2 (in: z2 / out: w1)
 
+// !! отдельно генерировать, случай когда из вершины выходит максимум одна связь
+
 #include "../01/mealy.h"
 #include "../01/mealy_settings.h"
 #include "../00/ex3.h"
@@ -17,10 +19,11 @@ using namespace std;
 
 
 vector<int> random_poses(int N, int k, int myself = -1) {
+    cout << "N = " << N << " k = " << k << endl; fflush(stdout);
     vector<int> nums;
     for(int i = 0; i < N; i++)
         if( i != myself ) nums.push_back(i);
-    cout << "CALL poses " << myself << "(" << k << ")" << endl;
+    cout << "CALL poses " << myself << "(" << k << ")" << endl; fflush(stdout);
     return random_select(nums, k);
 }
 
@@ -58,16 +61,17 @@ try {
 
     // число состояний в автомате
     unsigned N = dist(mt);
+    cout << "TOTAL: " << N << " states" << endl; fflush(stdout);
     mealy.state.resize(N);
 
     // делаем слои:  x -> x -> x  длинны до mlt от ещё неиспользованных состояний
     const unsigned min_in_layer = 5;
     double mlt  = 0.25;
 
-    double k = 0.75; // "связь" между слоями (какая часть по сравнению с равномерно распределенным графом)
+    double k = 1; // "связь" между слоями (какая часть по сравнению с равномерно распределенным графом)
 
     if( settings.n_trans_out.max == -1) settings.n_trans_out.max = 10;
-    if( settings.n_trans_out.min ==  0) settings.n_trans_out.min =  4;
+    if( settings.n_trans_out.min ==  0) settings.n_trans_out.min =  2;
     unsigned T  = (settings.n_trans_out.min + settings.n_trans_out.max) / 2; // среднее число исходящих связей
     unsigned M  = N; // еще не исполльзованные состояния
     unsigned pc = 0; // кол-во состояний на прошлом слое
@@ -80,7 +84,7 @@ try {
             std::uniform_int_distribution<int> dist_n(min_in_layer, (M-1)*mlt + 1);
             n = dist_n(mt);
         }
-        cout << "layer: " << n << endl;
+        cout << "layer: " << n << endl; fflush(stdout);
 
         for(int i = 0; i < n-1; i++) {
             mealy.state[c+i][t++] = {c+i+1, 0}; 
@@ -88,42 +92,69 @@ try {
 
 
         // прокидываем связи между соседними слоями
+        // ещё выделим вершину iс - из которой обязательно будет идти связь
+        int ic = -1;
+        if( pc ) {
+            std::uniform_int_distribution<int> dist_i(0, pc);
+            ic = dist_i(mt);
+        }
+
         for(int i = 0; i < pc; i++) {
-            std::uniform_int_distribution<int> dist_j(0, min((unsigned)(c*k*(T-1)/(N-1)), settings.n_trans_out.max));
+            if( (unsigned)(c*k*(T-1)/(N-1)) < (i == ic) ) cout << "ERRO: " << ((unsigned)(c*k*(T-1)/(N-1))) << endl;  fflush(stdout);
+            std::uniform_int_distribution<int> dist_j(i == ic, max(min((unsigned)(c*k*(T-1)/(N-1)), settings.n_trans_out.max), (unsigned)(i == ic)));
+            cout << "START " << i << endl; fflush(stdout);
             for(int j : random_poses(n, dist_j(mt), i)) {
                 mealy.state[c-1 - i][t++] = {c+j, 0};
             }
         }
 
+      
+
         M -= n;
         c += n;
         pc = n;
+        cout << "FINIS" << endl; fflush(stdout);
     }
 
-    cout << c << " =?= " << N << endl;    
+    cout << c << " =?= " << N << endl; fflush(stdout);   
 
     
     // дозаполняем отсавшиеся trans_out
     for(int i = 0; i < N; i++) {
+        cout << "For state q" << i << ":" << endl; fflush(stdout);
+
         std::uniform_int_distribution<int> dist_t(settings.n_trans_out.min, settings.n_trans_out.max);
         unsigned tt = dist_t(mt);
 
         // связей больше чем хотим  или  уже как надо
+        // поидеи должно быть без этого (а то вдруг связность потеряется)
         if( mealy.state[i].size() >= tt ) {
             auto m = random_select(mealy.state[i], mealy.state[i].size() - tt);
             for(const auto& elem : m) {
-                cout << "For state q" << i << " remove transition: z" << elem.first << " to state " << elem.second.pos << endl;
+                cout << "  remove transition: z" << elem.first << " to state " << elem.second.pos << endl; fflush(stdout);
                 mealy.state[i].erase(elem.first);
             }
             break;
         }
 
-        set   <unsigned>    ocuped; // вершины в которые есть переход из текущего состояния
-        vector<unsigned> available; // вершины между которыми будем выбирать для построения пути
+        set   <unsigned>    ocuped; // вершины в которые не будем рассматривать переходы
+        ocuped.insert(  i);
+        ocuped.insert(N+1); // <- чтобы через ~10 строчек было меньше кода  
+        for(const auto& [k, tr]: mealy.state[i]) ocuped.insert(tr.pos);
+        cout << "  norm ocuped" << endl; fflush(stdout);
 
-        // for(const auto& [k, tr]: mealy.state[i]) ocuped.insert(tr.pos);
-        // available.re
+        vector<unsigned> available; // вершины между которыми будем выбирать для построения пути
         
+        auto p = ocuped.begin();
+        for(int ii = 0; ii < N; ii++) {
+            while(*p  < ii) ++p;
+            if   (*p != ii) available.push_back(ii);
+        }
+
+        for(auto j : random_select(available, tt - mealy.state[i].size())) {
+            mealy.state[i][t++] = {j, 0};
+            cout << "  add transiction to  q" << j << endl; fflush(stdout);
+        }   
     }
 
 
