@@ -26,7 +26,7 @@ public:
 
 
                 auto q2 = vv.get<std::string>( "state");
-                int  q2_indx = upg(q2);
+                unsigned  q2_indx = upg(q2);
                 
                 // добавляем связь q -> q2 (in: z / out: w)
                 assert( state[q_indx].count(stoi( z.substr(1) )) == 0 );
@@ -62,14 +62,14 @@ public:
 
     int initial_pos;
 
-    std::map<std::string, int> state2indx;
-    std::map<int, std::string> indx2state; // здесь по идеи можно использовать vector вместо map
+    std::map<std::string, unsigned> state2indx;
+    std::map<unsigned, std::string> indx2state; // здесь по идеи можно использовать vector вместо map
                                            // ( или вообще хранить это в векторе state )
-    struct transition { int pos; int output; }; 
+    struct transition { unsigned pos; int output; }; 
     std::vector<std::map<int, transition>> state; 
 
 private:
-    int upg(const std::string& name) {
+    unsigned upg(const std::string& name) {
        if( !state2indx.count(name) ) {
             state2indx[name] = state.size();
             indx2state[state.size()] = name;
