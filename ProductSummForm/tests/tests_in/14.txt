@@ -1,0 +1,3 @@
+*
+-a*b - b*d + c*d + d*b
+a*c - b*c + c*a - d*a
